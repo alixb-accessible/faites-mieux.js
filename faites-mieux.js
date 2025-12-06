@@ -1,12 +1,11 @@
 /* Faites Mieux - Toolbar d'accessibilité universelle
    Par Ti Racoon
-   Version 1.0
+   Version 2.1 - Bouton compact + sans emojis
 */
 
 (function() {
   'use strict';
   
-  // Variables globales
   const fm = {
     settings: {
       theme: "light",
@@ -15,8 +14,12 @@
       brightness: 1,
       lineHeight: 1.6,
       letterSpacing: 0,
-      wordSpacing: 0
+      wordSpacing: 0,
+      voiceIndex: 0,
+      speechRate: 1,
+      buttonPosition: { top: 12, left: 12 }
     },
+    voices: [],
     
     save: function() {
       try {
@@ -38,25 +41,14 @@
     },
     
     apply: function() {
-      // Application de la police sur body
       document.body.style.fontFamily = this.settings.font + ', sans-serif';
-      
-      // Application de la taille
       document.body.style.fontSize = this.settings.fontSize + 'px';
-      
-      // Application de l'interligne
       document.body.style.lineHeight = this.settings.lineHeight;
-      
-      // Application de l'espacement lettres
       document.body.style.letterSpacing = this.settings.letterSpacing + 'px';
-      
-      // Application de l'espacement mots
       document.body.style.wordSpacing = this.settings.wordSpacing + 'px';
       
-      // Application de la luminosité
       let filterValue = 'brightness(' + this.settings.brightness + ')';
       
-      // Application du thème
       document.body.classList.remove('fm-theme-light', 'fm-theme-dark', 'fm-theme-sepia', 'fm-theme-high-contrast');
       document.body.classList.add('fm-applied', 'fm-theme-' + this.settings.theme);
       
@@ -96,25 +88,75 @@
       reader.readAsText(file);
     },
     
-    speak: function(text) {
+    loadVoices: function() {
       if(!window.speechSynthesis) return;
+      
+      this.voices = window.speechSynthesis.getVoices();
+      
+      if(this.voices.length === 0) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          this.voices = window.speechSynthesis.getVoices();
+          this.populateVoiceSelect();
+        };
+      } else {
+        this.populateVoiceSelect();
+      }
+    },
+    
+    populateVoiceSelect: function() {
+      const select = document.getElementById('fm-voice');
+      if(!select) return;
+      
+      select.innerHTML = '';
+      
+      this.voices.forEach((voice, index) => {
+        const option = document.createElement('option');
+        option.value = index;
+        option.textContent = `${voice.name} (${voice.lang})`;
+        
+        if(voice.lang.startsWith('fr') && !select.querySelector('[selected]')) {
+          option.selected = true;
+          this.settings.voiceIndex = index;
+        }
+        
+        select.appendChild(option);
+      });
+      
+      if(this.settings.voiceIndex !== undefined) {
+        select.value = this.settings.voiceIndex;
+      }
+    },
+    
+    speak: function(text) {
+      if(!window.speechSynthesis) {
+        alert("La synthèse vocale n'est pas disponible sur ce navigateur.");
+        return;
+      }
+      
       window.speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1;
+      
+      if(this.voices[this.settings.voiceIndex]) {
+        u.voice = this.voices[this.settings.voiceIndex];
+      }
+      
+      u.rate = this.settings.speechRate || 1;
+      u.pitch = 1;
+      
       window.speechSynthesis.speak(u);
     }
   };
   
-  // HTML de la toolbar
   const toolbarHTML = `
-    <button id="fm-toggle-btn" aria-label="Ouvrir les paramètres d'accessibilité" aria-expanded="false">
-      Accessibilité / Paramètres
+    <button id="fm-toggle-btn" class="compact" aria-label="Ouvrir les paramètres d'accessibilité" aria-expanded="false">
+      <span class="btn-text-compact">A</span>
+      <span class="btn-text-full">Accessibilité / Paramètres</span>
     </button>
     
     <div id="fm-toolbar" role="dialog" aria-label="Barre d'outils d'accessibilité">
       <header>
         <h2>Faites Mieux</h2>
-        <button class="fm-close" aria-label="Fermer">×</button>
+        <button class="fm-close" aria-label="Fermer">X</button>
       </header>
       
       <div class="fm-section">
@@ -167,8 +209,27 @@
         <span class="fm-value" id="fm-wordSpacing-val">0px</span>
       </div>
       
+      <div class="fm-section">
+        <label for="fm-voice">Voix de lecture</label>
+        <select id="fm-voice" class="fm-control">
+          <option value="0">Chargement des voix...</option>
+        </select>
+        <p class="fm-voice-info">Sélectionnez la voix pour la lecture à l'écran</p>
+      </div>
+      
+      <div class="fm-section fm-row">
+        <label for="fm-speechRate">Vitesse</label>
+        <input type="range" min="0.5" max="2" step="0.1" value="1" id="fm-speechRate">
+        <span class="fm-value" id="fm-speechRate-val">1x</span>
+      </div>
+      
       <div class="fm-section fm-row">
         <button class="fm-btn" id="fm-read">Lire le texte</button>
+      </div>
+      
+      <div class="fm-section">
+        <button class="fm-btn fm-btn-nvda" id="fm-nvda">Télécharger NVDA</button>
+        <p class="fm-voice-info">NVDA est un lecteur d'écran gratuit et open source</p>
       </div>
       
       <div class="fm-section fm-row">
@@ -178,34 +239,177 @@
           <input type="file" id="fm-import" accept=".json" style="display:none;">
         </label>
       </div>
+      
+      <div class="fm-section">
+        <button class="fm-btn fm-btn-secondary" id="fm-reset-position">Réinitialiser position du bouton</button>
+        <p class="fm-voice-info">Replace le bouton en haut à gauche</p>
+      </div>
     </div>
   `;
   
-  // Initialisation au chargement de la page
   function init() {
-    // Chargement des paramètres
     fm.load();
     
-    // Injection du HTML
     const container = document.createElement('div');
     container.innerHTML = toolbarHTML;
     document.body.appendChild(container);
     
-    // Récupération des éléments
+    fm.loadVoices();
+    
     const toggleBtn = document.getElementById('fm-toggle-btn');
     const toolbar = document.getElementById('fm-toolbar');
     const closeBtn = toolbar.querySelector('.fm-close');
     
-    // Gestion ouverture/fermeture
-    toggleBtn.addEventListener('click', function() {
-      const isVisible = toolbar.classList.contains('visible');
-      toolbar.classList.toggle('visible');
-      toggleBtn.setAttribute('aria-expanded', !isVisible);
+    // Restaurer la position du bouton
+    if(fm.settings.buttonPosition) {
+      toggleBtn.style.top = fm.settings.buttonPosition.top + 'px';
+      toggleBtn.style.left = fm.settings.buttonPosition.left + 'px';
+    }
+    
+    // Gestion du drag & drop du bouton
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
+    let dragStartTime = 0;
+    
+    toggleBtn.addEventListener('mousedown', function(e) {
+      dragStartTime = Date.now();
+      isDragging = true;
+      toggleBtn.classList.add('dragging');
+      
+      const rect = toggleBtn.getBoundingClientRect();
+      dragOffset.x = e.clientX - rect.left;
+      dragOffset.y = e.clientY - rect.top;
+      
+      e.preventDefault();
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+      if(!isDragging) return;
+      
+      let newLeft = e.clientX - dragOffset.x;
+      let newTop = e.clientY - dragOffset.y;
+      
+      // Limites de l'écran
+      const maxLeft = window.innerWidth - toggleBtn.offsetWidth;
+      const maxTop = window.innerHeight - toggleBtn.offsetHeight;
+      
+      newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+      newTop = Math.max(0, Math.min(newTop, maxTop));
+      
+      toggleBtn.style.left = newLeft + 'px';
+      toggleBtn.style.top = newTop + 'px';
+    });
+    
+    document.addEventListener('mouseup', function() {
+      if(!isDragging) return;
+      
+      const dragDuration = Date.now() - dragStartTime;
+      isDragging = false;
+      toggleBtn.classList.remove('dragging');
+      
+      // Sauvegarder la position
+      fm.settings.buttonPosition = {
+        top: parseInt(toggleBtn.style.top),
+        left: parseInt(toggleBtn.style.left)
+      };
+      fm.save();
+      
+      // Si le drag était très court (< 200ms), considérer comme un clic
+      if(dragDuration < 200) {
+        const isVisible = toolbar.classList.contains('visible');
+        toolbar.classList.toggle('visible');
+        toggleBtn.setAttribute('aria-expanded', !isVisible);
+        
+        if(!isVisible) {
+          toggleBtn.classList.remove('compact');
+          toggleBtn.classList.add('expanded');
+        }
+      }
+    });
+    
+    // Support tactile
+    toggleBtn.addEventListener('touchstart', function(e) {
+      dragStartTime = Date.now();
+      isDragging = true;
+      toggleBtn.classList.add('dragging');
+      
+      const touch = e.touches[0];
+      const rect = toggleBtn.getBoundingClientRect();
+      dragOffset.x = touch.clientX - rect.left;
+      dragOffset.y = touch.clientY - rect.top;
+      
+      e.preventDefault();
+    });
+    
+    document.addEventListener('touchmove', function(e) {
+      if(!isDragging) return;
+      
+      const touch = e.touches[0];
+      let newLeft = touch.clientX - dragOffset.x;
+      let newTop = touch.clientY - dragOffset.y;
+      
+      const maxLeft = window.innerWidth - toggleBtn.offsetWidth;
+      const maxTop = window.innerHeight - toggleBtn.offsetHeight;
+      
+      newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+      newTop = Math.max(0, Math.min(newTop, maxTop));
+      
+      toggleBtn.style.left = newLeft + 'px';
+      toggleBtn.style.top = newTop + 'px';
+      
+      e.preventDefault();
+    });
+    
+    document.addEventListener('touchend', function() {
+      if(!isDragging) return;
+      
+      const dragDuration = Date.now() - dragStartTime;
+      isDragging = false;
+      toggleBtn.classList.remove('dragging');
+      
+      fm.settings.buttonPosition = {
+        top: parseInt(toggleBtn.style.top),
+        left: parseInt(toggleBtn.style.left)
+      };
+      fm.save();
+      
+      if(dragDuration < 200) {
+        const isVisible = toolbar.classList.contains('visible');
+        toolbar.classList.toggle('visible');
+        toggleBtn.setAttribute('aria-expanded', !isVisible);
+        
+        if(!isVisible) {
+          toggleBtn.classList.remove('compact');
+          toggleBtn.classList.add('expanded');
+        }
+      }
+    });
+    
+    // Gestion du hover pour étendre le bouton
+    let expandTimeout;
+    
+    toggleBtn.addEventListener('mouseenter', function() {
+      if(isDragging) return;
+      clearTimeout(expandTimeout);
+      expandTimeout = setTimeout(() => {
+        toggleBtn.classList.remove('compact');
+        toggleBtn.classList.add('expanded');
+      }, 300);
+    });
+    
+    toggleBtn.addEventListener('mouseleave', function() {
+      clearTimeout(expandTimeout);
+      if(!toolbar.classList.contains('visible')) {
+        toggleBtn.classList.remove('expanded');
+        toggleBtn.classList.add('compact');
+      }
     });
     
     closeBtn.addEventListener('click', function() {
       toolbar.classList.remove('visible');
       toggleBtn.setAttribute('aria-expanded', 'false');
+      toggleBtn.classList.remove('expanded');
+      toggleBtn.classList.add('compact');
     });
     
     // Event listeners pour les contrôles
@@ -278,6 +482,21 @@
       fm.save();
     });
     
+    document.getElementById('fm-voice').addEventListener('change', e => {
+      fm.settings.voiceIndex = parseInt(e.target.value);
+      fm.save();
+    });
+    
+    const speechRateSlider = document.getElementById('fm-speechRate');
+    const speechRateVal = document.getElementById('fm-speechRate-val');
+    speechRateSlider.value = fm.settings.speechRate || 1;
+    speechRateVal.textContent = (fm.settings.speechRate || 1).toFixed(1) + 'x';
+    speechRateSlider.addEventListener('input', e => {
+      fm.settings.speechRate = parseFloat(e.target.value);
+      speechRateVal.textContent = fm.settings.speechRate.toFixed(1) + 'x';
+      fm.save();
+    });
+    
     document.getElementById('fm-read').addEventListener('click', () => {
       const selection = window.getSelection().toString().trim();
       if(selection) {
@@ -287,6 +506,10 @@
       }
     });
     
+    document.getElementById('fm-nvda').addEventListener('click', () => {
+      window.open('https://www.nvaccess.org/download/', '_blank');
+    });
+    
     document.getElementById('fm-export').addEventListener('click', () => fm.exportJSON());
     
     document.getElementById('fm-import').addEventListener('change', e => {
@@ -294,11 +517,17 @@
       if(file) fm.importJSON(file);
     });
     
-    // Application initiale
+    document.getElementById('fm-reset-position').addEventListener('click', () => {
+      fm.settings.buttonPosition = { top: 12, left: 12 };
+      toggleBtn.style.top = '12px';
+      toggleBtn.style.left = '12px';
+      fm.save();
+      alert("Position réinitialisée en haut à gauche");
+    });
+    
     fm.apply();
   }
   
-  // Lancement au chargement de la page
   if(document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
