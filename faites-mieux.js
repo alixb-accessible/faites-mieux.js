@@ -112,7 +112,7 @@
       this.voices.forEach((voice, index) => {
         const option = document.createElement('option');
         option.value = index;
-        option.textContent = `${voice.name} (${voice.lang})`;
+        option.textContent = voice.name + ' (' + voice.lang + ')';
         
         if(voice.lang.startsWith('fr') && !select.querySelector('[selected]')) {
           option.selected = true;
@@ -147,105 +147,7 @@
     }
   };
   
-  const toolbarHTML = `
-    <button id="fm-toggle-btn" class="compact" aria-label="Ouvrir les paramètres d'accessibilité" aria-expanded="false">
-      <span class="btn-text-compact">A</span>
-      <span class="btn-text-full">Accessibilité / Paramètres</span>
-    </button>
-    
-    <div id="fm-toolbar" role="dialog" aria-label="Barre d'outils d'accessibilité">
-      <header>
-        <h2>Faites Mieux</h2>
-        <button class="fm-close" aria-label="Fermer">X</button>
-      </header>
-      
-      <div class="fm-section">
-        <label for="fm-theme">Thème</label>
-        <select id="fm-theme" class="fm-control">
-          <option value="light">Clair</option>
-          <option value="dark">Sombre</option>
-          <option value="sepia">Sépia</option>
-          <option value="high-contrast">Contraste élevé</option>
-        </select>
-      </div>
-      
-      <div class="fm-section">
-        <label for="fm-font">Police</label>
-        <select id="fm-font" class="fm-control">
-          <option value="Lexend">Lexend</option>
-          <option value="Atkinson Hyperlegible">Atkinson Hyperlegible</option>
-          <option value="OpenDyslexic">OpenDyslexic</option>
-          <option value="Inter">Inter</option>
-        </select>
-      </div>
-      
-      <div class="fm-section fm-row">
-        <label for="fm-fontSize">Taille</label>
-        <input type="range" min="12" max="32" step="1" value="16" id="fm-fontSize">
-        <span class="fm-value" id="fm-fontSize-val">16px</span>
-      </div>
-      
-      <div class="fm-section fm-row">
-        <label for="fm-brightness">Luminosité</label>
-        <input type="range" min="0.5" max="2" step="0.05" value="1" id="fm-brightness">
-        <span class="fm-value" id="fm-brightness-val">100%</span>
-      </div>
-      
-      <div class="fm-section fm-row">
-        <label for="fm-lineHeight">Interligne</label>
-        <input type="range" min="1" max="2.5" step="0.1" value="1.6" id="fm-lineHeight">
-        <span class="fm-value" id="fm-lineHeight-val">1.6</span>
-      </div>
-      
-      <div class="fm-section fm-row">
-        <label for="fm-letterSpacing">Espace lettres</label>
-        <input type="range" min="0" max="5" step="0.5" value="0" id="fm-letterSpacing">
-        <span class="fm-value" id="fm-letterSpacing-val">0px</span>
-      </div>
-      
-      <div class="fm-section fm-row">
-        <label for="fm-wordSpacing">Espace mots</label>
-        <input type="range" min="0" max="20" step="1" value="0" id="fm-wordSpacing">
-        <span class="fm-value" id="fm-wordSpacing-val">0px</span>
-      </div>
-      
-      <div class="fm-section">
-        <label for="fm-voice">Voix de lecture</label>
-        <select id="fm-voice" class="fm-control">
-          <option value="0">Chargement des voix...</option>
-        </select>
-        <p class="fm-voice-info">Sélectionnez la voix pour la lecture à l'écran</p>
-      </div>
-      
-      <div class="fm-section fm-row">
-        <label for="fm-speechRate">Vitesse</label>
-        <input type="range" min="0.5" max="2" step="0.1" value="1" id="fm-speechRate">
-        <span class="fm-value" id="fm-speechRate-val">1x</span>
-      </div>
-      
-      <div class="fm-section fm-row">
-        <button class="fm-btn" id="fm-read">Lire le texte</button>
-      </div>
-      
-      <div class="fm-section">
-        <button class="fm-btn fm-btn-nvda" id="fm-nvda">Télécharger NVDA</button>
-        <p class="fm-voice-info">NVDA est un lecteur d'écran gratuit et open source</p>
-      </div>
-      
-      <div class="fm-section fm-row">
-        <button class="fm-btn" id="fm-export">Exporter</button>
-        <label class="fm-btn" style="margin:0;cursor:pointer;">
-          Importer
-          <input type="file" id="fm-import" accept=".json" style="display:none;">
-        </label>
-      </div>
-      
-      <div class="fm-section">
-        <button class="fm-btn fm-btn-secondary" id="fm-reset-position">Réinitialiser position du bouton</button>
-        <p class="fm-voice-info">Replace le bouton en haut à gauche</p>
-      </div>
-    </div>
-  `;
+  const toolbarHTML = '<button id="fm-toggle-btn" class="compact" aria-label="Ouvrir les paramètres d\'accessibilité" aria-expanded="false"><span class="btn-text-compact">A</span><span class="btn-text-full">Accessibilité / Paramètres</span></button><div id="fm-toolbar" role="dialog" aria-label="Barre d\'outils d\'accessibilité"><header><h2>Faites Mieux</h2><button class="fm-close" aria-label="Fermer">X</button></header><div class="fm-section"><label for="fm-theme">Thème</label><select id="fm-theme" class="fm-control"><option value="light">Clair</option><option value="dark">Sombre</option><option value="sepia">Sépia</option><option value="high-contrast">Contraste élevé</option></select></div><div class="fm-section"><label for="fm-font">Police</label><select id="fm-font" class="fm-control"><option value="Lexend">Lexend</option><option value="Atkinson Hyperlegible">Atkinson Hyperlegible</option><option value="OpenDyslexic">OpenDyslexic</option><option value="Inter">Inter</option></select></div><div class="fm-section fm-row"><label for="fm-fontSize">Taille</label><input type="range" min="12" max="32" step="1" value="16" id="fm-fontSize"><span class="fm-value" id="fm-fontSize-val">16px</span></div><div class="fm-section fm-row"><label for="fm-brightness">Luminosité</label><input type="range" min="0.5" max="2" step="0.05" value="1" id="fm-brightness"><span class="fm-value" id="fm-brightness-val">100%</span></div><div class="fm-section fm-row"><label for="fm-lineHeight">Interligne</label><input type="range" min="1" max="2.5" step="0.1" value="1.6" id="fm-lineHeight"><span class="fm-value" id="fm-lineHeight-val">1.6</span></div><div class="fm-section fm-row"><label for="fm-letterSpacing">Espace lettres</label><input type="range" min="0" max="5" step="0.5" value="0" id="fm-letterSpacing"><span class="fm-value" id="fm-letterSpacing-val">0px</span></div><div class="fm-section fm-row"><label for="fm-wordSpacing">Espace mots</label><input type="range" min="0" max="20" step="1" value="0" id="fm-wordSpacing"><span class="fm-value" id="fm-wordSpacing-val">0px</span></div><div class="fm-section"><label for="fm-voice">Voix de lecture</label><select id="fm-voice" class="fm-control"><option value="0">Chargement des voix...</option></select><p class="fm-voice-info">Sélectionnez la voix pour la lecture à l\'écran</p></div><div class="fm-section fm-row"><label for="fm-speechRate">Vitesse</label><input type="range" min="0.5" max="2" step="0.1" value="1" id="fm-speechRate"><span class="fm-value" id="fm-speechRate-val">1x</span></div><div class="fm-section fm-row"><button class="fm-btn" id="fm-read">Lire le texte</button></div><div class="fm-section"><button class="fm-btn fm-btn-nvda" id="fm-nvda">Télécharger NVDA</button><p class="fm-voice-info">NVDA est un lecteur d\'écran gratuit et open source</p></div><div class="fm-section fm-row"><button class="fm-btn" id="fm-export">Exporter</button><label class="fm-btn" style="margin:0;cursor:pointer;">Importer<input type="file" id="fm-import" accept=".json" style="display:none;"></label></div><div class="fm-section"><button class="fm-btn fm-btn-secondary" id="fm-reset-position">Réinitialiser position du bouton</button><p class="fm-voice-info">Replace le bouton en haut à gauche</p></div></div>';
   
   function init() {
     fm.load();
@@ -260,13 +162,11 @@
     const toolbar = document.getElementById('fm-toolbar');
     const closeBtn = toolbar.querySelector('.fm-close');
     
-    // Restaurer la position du bouton
     if(fm.settings.buttonPosition) {
       toggleBtn.style.top = fm.settings.buttonPosition.top + 'px';
       toggleBtn.style.left = fm.settings.buttonPosition.left + 'px';
     }
     
-    // Gestion du drag & drop du bouton
     let isDragging = false;
     let dragOffset = { x: 0, y: 0 };
     let dragStartTime = 0;
@@ -289,7 +189,6 @@
       let newLeft = e.clientX - dragOffset.x;
       let newTop = e.clientY - dragOffset.y;
       
-      // Limites de l'écran
       const maxLeft = window.innerWidth - toggleBtn.offsetWidth;
       const maxTop = window.innerHeight - toggleBtn.offsetHeight;
       
@@ -307,14 +206,12 @@
       isDragging = false;
       toggleBtn.classList.remove('dragging');
       
-      // Sauvegarder la position
       fm.settings.buttonPosition = {
         top: parseInt(toggleBtn.style.top),
         left: parseInt(toggleBtn.style.left)
       };
       fm.save();
       
-      // Si le drag était très court (< 200ms), considérer comme un clic
       if(dragDuration < 200) {
         const isVisible = toolbar.classList.contains('visible');
         toolbar.classList.toggle('visible');
@@ -327,7 +224,6 @@
       }
     });
     
-    // Support tactile
     toggleBtn.addEventListener('touchstart', function(e) {
       dragStartTime = Date.now();
       isDragging = true;
@@ -385,13 +281,12 @@
       }
     });
     
-    // Gestion du hover pour étendre le bouton
     let expandTimeout;
     
     toggleBtn.addEventListener('mouseenter', function() {
       if(isDragging) return;
       clearTimeout(expandTimeout);
-      expandTimeout = setTimeout(() => {
+      expandTimeout = setTimeout(function() {
         toggleBtn.classList.remove('compact');
         toggleBtn.classList.add('expanded');
       }, 300);
@@ -412,16 +307,15 @@
       toggleBtn.classList.add('compact');
     });
     
-    // Event listeners pour les contrôles
     document.getElementById('fm-theme').value = fm.settings.theme;
-    document.getElementById('fm-theme').addEventListener('change', e => {
+    document.getElementById('fm-theme').addEventListener('change', function(e) {
       fm.settings.theme = e.target.value;
       fm.apply();
       fm.save();
     });
     
     document.getElementById('fm-font').value = fm.settings.font;
-    document.getElementById('fm-font').addEventListener('change', e => {
+    document.getElementById('fm-font').addEventListener('change', function(e) {
       fm.settings.font = e.target.value;
       fm.apply();
       fm.save();
@@ -431,7 +325,7 @@
     const fontVal = document.getElementById('fm-fontSize-val');
     fontSlider.value = fm.settings.fontSize;
     fontVal.textContent = fm.settings.fontSize + 'px';
-    fontSlider.addEventListener('input', e => {
+    fontSlider.addEventListener('input', function(e) {
       fm.settings.fontSize = parseInt(e.target.value);
       fontVal.textContent = fm.settings.fontSize + 'px';
       fm.apply();
@@ -442,7 +336,7 @@
     const brightVal = document.getElementById('fm-brightness-val');
     brightSlider.value = fm.settings.brightness;
     brightVal.textContent = (fm.settings.brightness * 100).toFixed(0) + '%';
-    brightSlider.addEventListener('input', e => {
+    brightSlider.addEventListener('input', function(e) {
       fm.settings.brightness = parseFloat(e.target.value);
       brightVal.textContent = (fm.settings.brightness * 100).toFixed(0) + '%';
       fm.apply();
@@ -453,7 +347,7 @@
     const lineHeightVal = document.getElementById('fm-lineHeight-val');
     lineHeightSlider.value = fm.settings.lineHeight;
     lineHeightVal.textContent = fm.settings.lineHeight.toFixed(1);
-    lineHeightSlider.addEventListener('input', e => {
+    lineHeightSlider.addEventListener('input', function(e) {
       fm.settings.lineHeight = parseFloat(e.target.value);
       lineHeightVal.textContent = fm.settings.lineHeight.toFixed(1);
       fm.apply();
@@ -464,7 +358,7 @@
     const letterSpacingVal = document.getElementById('fm-letterSpacing-val');
     letterSpacingSlider.value = fm.settings.letterSpacing;
     letterSpacingVal.textContent = fm.settings.letterSpacing + 'px';
-    letterSpacingSlider.addEventListener('input', e => {
+    letterSpacingSlider.addEventListener('input', function(e) {
       fm.settings.letterSpacing = parseFloat(e.target.value);
       letterSpacingVal.textContent = fm.settings.letterSpacing + 'px';
       fm.apply();
@@ -475,14 +369,14 @@
     const wordSpacingVal = document.getElementById('fm-wordSpacing-val');
     wordSpacingSlider.value = fm.settings.wordSpacing;
     wordSpacingVal.textContent = fm.settings.wordSpacing + 'px';
-    wordSpacingSlider.addEventListener('input', e => {
+    wordSpacingSlider.addEventListener('input', function(e) {
       fm.settings.wordSpacing = parseFloat(e.target.value);
       wordSpacingVal.textContent = fm.settings.wordSpacing + 'px';
       fm.apply();
       fm.save();
     });
     
-    document.getElementById('fm-voice').addEventListener('change', e => {
+    document.getElementById('fm-voice').addEventListener('change', function(e) {
       fm.settings.voiceIndex = parseInt(e.target.value);
       fm.save();
     });
@@ -491,13 +385,13 @@
     const speechRateVal = document.getElementById('fm-speechRate-val');
     speechRateSlider.value = fm.settings.speechRate || 1;
     speechRateVal.textContent = (fm.settings.speechRate || 1).toFixed(1) + 'x';
-    speechRateSlider.addEventListener('input', e => {
+    speechRateSlider.addEventListener('input', function(e) {
       fm.settings.speechRate = parseFloat(e.target.value);
       speechRateVal.textContent = fm.settings.speechRate.toFixed(1) + 'x';
       fm.save();
     });
     
-    document.getElementById('fm-read').addEventListener('click', () => {
+    document.getElementById('fm-read').addEventListener('click', function() {
       const selection = window.getSelection().toString().trim();
       if(selection) {
         fm.speak(selection);
@@ -506,18 +400,20 @@
       }
     });
     
-    document.getElementById('fm-nvda').addEventListener('click', () => {
+    document.getElementById('fm-nvda').addEventListener('click', function() {
       window.open('https://www.nvaccess.org/download/', '_blank');
     });
     
-    document.getElementById('fm-export').addEventListener('click', () => fm.exportJSON());
+    document.getElementById('fm-export').addEventListener('click', function() {
+      fm.exportJSON();
+    });
     
-    document.getElementById('fm-import').addEventListener('change', e => {
+    document.getElementById('fm-import').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if(file) fm.importJSON(file);
     });
     
-    document.getElementById('fm-reset-position').addEventListener('click', () => {
+    document.getElementById('fm-reset-position').addEventListener('click', function() {
       fm.settings.buttonPosition = { top: 12, left: 12 };
       toggleBtn.style.top = '12px';
       toggleBtn.style.left = '12px';
